@@ -1,7 +1,7 @@
-import HelpDesk from './HelpDesk';
+import Chat from './Chat';
 
 const root = document.getElementById('root');
 
-const app = new HelpDesk(root);
+const app = new Chat(root);
 
 app.init();
