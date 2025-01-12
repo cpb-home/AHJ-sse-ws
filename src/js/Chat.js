@@ -12,7 +12,8 @@ export default class Chat {
 
   async init() {
     if (LS.isUserNameExist()) {
-      this.ws = new WebSocket('ws://localhost:3000/ws');
+      //this.ws = new WebSocket('ws://localhost:3000/ws');
+      this.ws = new WebSocket('wss://ahj-sse-ws-server.onrender.com/ws');//https://ahj-sse-ws-server.onrender.com
       this.ws.addEventListener('open', e => {
         //console.log('ws opened ', e);
         this.ws.send(JSON.stringify({type: 'onOpen', name: LS.getUserName()}));
@@ -59,7 +60,7 @@ export default class Chat {
     const options = {
       name: inputText
     };
-    fetch('http://localhost:3000/new-user', {
+    fetch('https://ahj-sse-ws-server.onrender.com/new-user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -116,7 +117,7 @@ export default class Chat {
     const msgsListCont = document.createElement('div');
     msgsListCont.className = 'chat__msgsListCont';
 
-    const fetchMessages = await fetch('http://localhost:3000/chat', {
+    const fetchMessages = await fetch('https://ahj-sse-ws-server.onrender.com/chat', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -208,7 +209,7 @@ export default class Chat {
   }
 
   async getAllUsers() {
-    const response = await fetch('http://localhost:3000/users', {
+    const response = await fetch('https://ahj-sse-ws-server.onrender.com/users', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
