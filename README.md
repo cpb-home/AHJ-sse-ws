@@ -1,3 +1,3 @@
 #AHJ sse-ws
 
-[![Build status](https://ci.appveyor.com/api/projects/status/1klnvkx3qen8yea4/branch/main?svg=true)](https://ci.appveyor.com/project/cpb-home/ahj-http/branch/main)
+[![Build status](https://ci.appveyor.com/api/projects/status/pdewdftmfj41h8j1/branch/main?svg=true)](https://ci.appveyor.com/project/cpb-home/ahj-sse-ws/branch/main)
