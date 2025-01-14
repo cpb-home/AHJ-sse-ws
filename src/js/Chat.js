@@ -12,33 +12,35 @@ export default class Chat {
 
   async init() {
     if (LS.isUserNameExist()) {
-      //this.ws = new WebSocket('ws://localhost:3000/ws');
-      this.ws = new WebSocket('wss://ahj-sse-ws-server.onrender.com/ws');//https://ahj-sse-ws-server.onrender.com
-      this.ws.addEventListener('open', e => {
-        //console.log('ws opened ', e);
-        this.ws.send(JSON.stringify({type: 'onOpen', name: LS.getUserName()}));
-      });
-
-      this.ws.addEventListener('close', e => {
-        //console.log('ws closed');
-        this.ws.send(JSON.stringify({type: 'onClose', name: LS.getUserName()}));
-      });
-
-      this.ws.addEventListener('error', e => {
-        //console.log('Ошибка websocket: ', e);
-      });
-
-      this.ws.addEventListener('message', e => {
-        //console.log('Получен ws', e);
-        this.updateMessages(JSON.parse(e.data));
-        this.updateUserList();
-      });
-
       const exitCont = this.createExitLink();
       this.container.append(exitCont);
       
       const chat = await this.createChat();
       this.container.append(chat);
+
+      //this.ws = new WebSocket('ws://localhost:3000/ws');
+      this.ws = new WebSocket('wss://ahj-sse-ws-server.onrender.com/ws');
+      this.ws.addEventListener('open', e => {
+        this.ws.send(JSON.stringify({type: 'onOpen', name: LS.getUserName()}));
+      });
+
+      this.ws.addEventListener('close', e => {
+        this.ws.send(JSON.stringify({type: 'onClose', name: LS.getUserName()}));
+      });
+
+      this.ws.addEventListener('error', e => {
+      });
+
+      this.ws.addEventListener('message', e => {
+        const data = JSON.parse(e.data);
+        if (data.type) {
+          this.updateUserList();
+        } else {console.log('mes2');
+          this.updateMessages(data);
+          this.updateUserList();
+        }
+      });
+
     } else {
       this.container.append(this.modal.render());
     }
