@@ -1,4 +1,3 @@
-import ChatAPI from "./api/ChatAPI";
 import Modal from "./Modal";
 import LS from "./api/LS";
 import { validateUser, getMessages, getAllUsers } from './api/connections';
