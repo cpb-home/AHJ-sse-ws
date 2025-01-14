@@ -1,6 +1,7 @@
 import ChatAPI from "./api/ChatAPI";
 import Modal from "./Modal";
 import LS from "./api/LS";
+import { validateUser, getMessages, getAllUsers } from './api/connections';
 
 export default class Chat {
   constructor(container) {
@@ -12,20 +13,29 @@ export default class Chat {
 
   async init() {
     if (LS.isUserNameExist()) {
+
       const exitCont = this.createExitLink();
       this.container.append(exitCont);
       
       const chat = await this.createChat();
       this.container.append(chat);
 
-      //this.ws = new WebSocket('ws://localhost:3000/ws');
-      this.ws = new WebSocket('wss://ahj-sse-ws-server.onrender.com/ws');
+      if (this.ws) {
+        this.ws.removeEventListener('open');
+        this.ws.removeEventListener('close');
+        this.ws.removeEventListener('error');
+        this.ws.removeEventListener('message');
+      }
+
+      this.ws = new WebSocket('ws://localhost:3000/ws');
       this.ws.addEventListener('open', e => {
         this.ws.send(JSON.stringify({type: 'onOpen', name: LS.getUserName()}));
       });
 
       this.ws.addEventListener('close', e => {
-        this.ws.send(JSON.stringify({type: 'onClose', name: LS.getUserName()}));
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(JSON.stringify({type: 'onClose', name: LS.getUserName()}));
+        }
       });
 
       this.ws.addEventListener('error', e => {
@@ -35,52 +45,22 @@ export default class Chat {
         const data = JSON.parse(e.data);
         if (data.type) {
           this.updateUserList();
-        } else {console.log('mes2');
+        } else {
           this.updateMessages(data);
           this.updateUserList();
         }
       });
-
     } else {
       this.container.append(this.modal.render());
     }
   }
 
-  bindToDOM() {}
-
-  registerEvents() {}
-
-  subscribeOnEvents() {}
-
-  onEnterChatHandler() {}
-
-  sendMessage() {}
-
-  renderMessage() {}
-
-  validateUserName(inputText, hint) {
+  async validateUserName(inputText, hint) {
     const options = {
       name: inputText
     };
-    fetch('https://ahj-sse-ws-server.onrender.com/new-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify(options)
-    })
-    .then(res => {
-      if (res.status === 409) {
-        hint.textContent = 'Такой ник уже существует. Введите другой.';
-      } else {
-        LS.addUserName(inputText);
-        this.modal.disable();
-        this.container.textContent = '';
-        this.init();
-      }
-    })
-    //.then(result => this.modal.disable());
-    //this.modal.disable();
+
+    await validateUser.apply(this, [options, inputText, hint]);
   }
 
   createExitLink() {
@@ -119,13 +99,7 @@ export default class Chat {
     const msgsListCont = document.createElement('div');
     msgsListCont.className = 'chat__msgsListCont';
 
-    const fetchMessages = await fetch('https://ahj-sse-ws-server.onrender.com/chat', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      }
-    });
-    const messages = await fetchMessages.json();
+    const messages = await getMessages();
 
     if (messages.length) {
       messages.forEach (e => {
@@ -200,25 +174,13 @@ export default class Chat {
     chatUserListHeader.textContent = 'Список пользователей';
     chatUserList.append(chatUserListHeader);
     
-    //const users = [1,2,3];
-    const users = await this.getAllUsers();
+    const users = await getAllUsers();
     users.forEach(e => {
       const chatUserItem = this.createUser(e.name);
       chatUserList.append(chatUserItem);
     });
 
     return chatUserList;
-  }
-
-  async getAllUsers() {
-    const response = await fetch('https://ahj-sse-ws-server.onrender.com/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      }
-    });
-    const data = await response.json();
-    return data;
   }
 
   sendMessageHandler(e) {
@@ -247,7 +209,7 @@ export default class Chat {
   }
 
   async updateUserList() {
-    const newUsersList = await this.getAllUsers();
+    const newUsersList = await getAllUsers();
     
     if (newUsersList.length) {
       const userList = document.querySelector('.chat__usersListCont');
