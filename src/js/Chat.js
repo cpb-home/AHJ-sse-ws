@@ -26,7 +26,7 @@ export default class Chat {
         this.ws.removeEventListener('message');
       }
 
-      this.ws = new WebSocket('ws://localhost:3000/ws');
+      this.ws = new WebSocket('wss://ahj-sse-ws-server.onrender.com/ws');
       this.ws.addEventListener('open', e => {
         this.ws.send(JSON.stringify({type: 'onOpen', name: LS.getUserName()}));
       });
