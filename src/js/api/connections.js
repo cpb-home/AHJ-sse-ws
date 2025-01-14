@@ -22,7 +22,7 @@ export function validateUser(options, inputText, hint) {
 }
 
 export async function getMessages() {
-  const fetchMessages = await fetch('http://localhost:3000/chat', {
+  const fetchMessages = await fetch(SERVER_URL + 'chat', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
@@ -32,7 +32,7 @@ export async function getMessages() {
 }
 
 export async function getAllUsers() {
-  const response = await fetch('http://localhost:3000/users', {
+  const response = await fetch(SERVER_URL + 'users', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
